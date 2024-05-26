@@ -70,6 +70,40 @@ nav > .right {
   margin-top: auto;
   margin-bottom: auto;
   margin-left: 4em;
+  margin-right: 4em;
+}
+
+.hero-outline {
+  color: var(--default-text-color);
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.hero-outline > div {
+  list-style: none;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.hero-outline > div > a {
+  color: var(--default-text-color);
+  position: relative;
+  text-decoration: none;
+  margin-bottom: 1em;
+}
+
+.hero-outline > div > a::after {
+  content: "";
+  display: block;
+  height: 2px;
+  background: linear-gradient(to right, #3498db, #9b59b6);
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  transition: width 0.3s;
+  z-index: 1;
 }
 
 .section {
