@@ -1,0 +1,158 @@
+@font-face {
+    font-family: "shinto";
+    src: url("fonts/GbshintoRegular-VMGx.otf") format("opentype");
+    font-weight: normal;
+    font-style: normal;
+  }
+  
+  @font-face {
+    font-family: "jailbolt";
+    src: url("fonts/Jailbolt.otf") format("opentype");
+    font-weight: normal;
+    font-style: normal;
+  }
+  
+  @font-face {
+    font-family: "monaco";
+    src: url("fonts/monaco.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+  }
+  
+  body {
+    --primary-color: #00f0ff;
+    --background-color: #0f173c;
+    --background-color-60: #0f173c90;
+    --background-color-90: #0f173ce6;
+    --default-text-color: #ffffff;
+    --white-color-5: #ffffff0d;
+  
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    background: var(--background-color);
+  
+    --neon-green-color: #40ff75;
+    --neon-yellow-color: #ffcd4b;
+    --neon-blue-color: #00f0ff;
+    --neon-pink-color: #ff409c;
+  
+    color: var(--default-text-color);
+    font-family: "monaco";
+  }
+  
+  .neon-pink {
+    color: var(--neon-pink-color);
+  }
+  
+  .neon-green {
+    color: var(--neon-green-color);
+  }
+  
+  .neon-yellow {
+    color: var(--neon-yellow-color);
+  }
+  
+  .neon-blue {
+    color: var(--neon-blue-color);
+  }
+  
+  h1 {
+    font-family: "jailbolt";
+  }
+  
+  nav {
+    color: var(--default-text-color);
+    background: var(--background-color);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 4em;
+  }
+  
+  nav > :first-child {
+    padding-left: 2em;
+  }
+  
+  nav > :last-child {
+    padding-right: 2em;
+  }
+  
+  nav > a,
+  nav > * > a {
+    font-size: 1.25em;
+    margin: 0.5em;
+    margin-top: auto;
+    margin-bottom: auto;
+  }
+  
+  nav > .right {
+    margin-left: auto;
+    margin-top: auto;
+    margin-bottom: auto;
+  }
+  
+  .hero {
+    /* Use "linear-gradient" to add a darken background effect to the image (photographer.jpg). This will make the text easier to read */
+    background-image: linear-gradient(
+        var(--background-color-60),
+        var(--background-color-90)
+      ),
+      url("images/neon.webp");
+  
+    /* Set a specific height */
+    height: 48em;
+  
+    /* Position and center the image to scale nicely on all screens */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+    object-fit: cover;
+    display: flex;
+  }
+  
+  .hero-text {
+    color: var(--default-text-color);
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    font-family: "cursive";
+  }
+  
+  .hero-text > h1 {
+    font-size: 8em;
+    margin: 0;
+  }
+  
+  .hero-text > h2 {
+    font-size: 2.5em;
+    margin-top: 0.5em;
+    margin-bottom: 0;
+  }
+  
+  .hero-text > p {
+    font-size: 1.5em;
+    margin: 0;
+  }
+  
+  .section {
+    background: var(--white-color-5);
+    margin: 5em;
+    padding-inline: 2em;
+    padding-top: 2em;
+    padding-bottom: 2em;
+    border-radius: 1em;
+  }
+  
+  .section > h1 {
+    color: var(--neon-yellow-color);
+    margin: 0;
+  }
+  
