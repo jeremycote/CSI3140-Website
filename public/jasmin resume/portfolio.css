@@ -147,7 +147,7 @@
     margin: 5em;
     padding-inline: 2em;
     padding-top: 2em;
-    padding-bottom: 2em;
+    padding-bottom: 120em;
     border-radius: 1em;
   }
   
@@ -155,4 +155,21 @@
     color: var(--neon-yellow-color);
     margin: 0;
   }
+
+  img {
+    max-width: 40em;
+  }
+
+  ul {
+    font-size: 1.25em;
+    padding-left: 1em;
+  }
   
+  a {
+    color: var(--neon-blue-color)
+  }
+
+  .figDescription{
+    margin-top : 0.3em;
+    margin-bottom: 2em;
+  }
