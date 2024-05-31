@@ -171,17 +171,35 @@ nav > .right {
 }
 
 .center-box > a {
-  margin-top: 1em;
-  padding-top: 1em;
-  padding-bottom: 1em;
+  margin-top: 4rem;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
   text-decoration: none;
   font-family: "jailbolt";
-  font-size: 3em;
-  color: var(--neon-yellow-color);
-  border: 0.15em solid var(--neon-blue-color);
+  font-size: 4em;
+  border: 0.15em solid #ffffff;
   border-radius: 0.5em;
+
+  box-shadow: 0 0 0.2rem #fff, 0 0 0.2rem #fff, 0 0 2rem var(--neon-blue-color),
+    0 0 0.8rem var(--neon-blue-color), 0 0 2.8rem var(--neon-blue-color),
+    inset 0 0 1.3rem var(--neon-blue-color);
+}
+
+.neon-glow-yellow {
+  color: var(--neon-yellow-color);
+  text-shadow: 0 -40px 100px, 0 0 2px, 0 0 1em var(--neon-yellow-color),
+    0 0 0.5em #ff4444, 0 0 0.1em #ff4444, 0 10px 3px #000;
+}
+
+.neon-glow-green {
+  color: var(--neon-green-color);
+  text-shadow: 0 -40px 100px, 0 0 2px, 0 0 1em var(--neon-green-color),
+    0 0 0.5em var(--neon-green-color), 0 0 0.1em var(--neon-green-color),
+    0 10px 3px #000;
 }
 
 .center-box > a:hover {
-  border: 0.15em solid var(--neon-pink-color);
+  box-shadow: 0 0 0.2rem #fff, 0 0 0.2rem #fff, 0 0 2rem var(--neon-pink-color),
+    0 0 0.8rem var(--neon-pink-color), 0 0 2.8rem var(--neon-pink-color),
+    inset 0 0 1.3rem var(--neon-pink-color);
 }
