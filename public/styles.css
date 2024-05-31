@@ -156,3 +156,32 @@ nav > .right {
   color: var(--neon-yellow-color);
   margin: 0;
 }
+
+.center-box {
+  margin-inline: auto;
+  margin-top: auto;
+  margin-bottom: auto;
+  width: 40em;
+  margin-top: 2em;
+  margin-bottom: 2em;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  justify-content: center;
+}
+
+.center-box > a {
+  margin-top: 1em;
+  padding-top: 1em;
+  padding-bottom: 1em;
+  text-decoration: none;
+  font-family: "jailbolt";
+  font-size: 3em;
+  color: var(--neon-yellow-color);
+  border: 0.15em solid var(--neon-blue-color);
+  border-radius: 0.5em;
+}
+
+.center-box > a:hover {
+  border: 0.15em solid var(--neon-pink-color);
+}
