@@ -169,7 +169,15 @@
     color: var(--neon-blue-color)
   }
 
+  a:hover {
+    color: var(--neon-pink-color);
+  }
+
   .figDescription{
     margin-top : 0.3em;
     margin-bottom: 2em;
+  }
+
+  .resume{
+    margin-left: 4em
   }
