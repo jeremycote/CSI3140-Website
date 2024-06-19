@@ -16,10 +16,27 @@ body {
 nav {
   background-color: var(--colour-nav);
   padding: 0.5em;
+  height: 3em;
+  display: flex;
+  text-align: center;
+  align-items: center;
+}
+
+nav > a {
+  text-decoration: none;
+  color: var(--colour-x);
+  font-size: 1.5em;
+  border: 0.25rem solid var(--colour-x);
+  padding: 0.5em;
+}
+
+nav > a:hover {
+  color: var(--colour-o);
+  border: 0.25rem solid var(--colour-o);
 }
 
 .large {
-  font-size: 3em;
+  font-size: 2em;
 }
 
 .center {
