@@ -7,6 +7,7 @@ body {
   --colour-x: #5700c1;
   --colour-o: #ff0040;
   --colour-board-background: #ffffff;
+  --colour-winner: #24ff71;
 
   background-color: var(--colour-background);
   box-sizing: content-box;
@@ -69,4 +70,8 @@ nav {
 
 .colour-o {
   color: var(--colour-o);
+}
+
+.background-winner {
+  background: var(--colour-winner);
 }
