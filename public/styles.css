@@ -230,6 +230,13 @@ nav > .right {
     0 10px 3px #000;
 }
 
+.neon-glow-pink {
+  color: var(--neon-pink-color);
+  text-shadow: 0 -40px 100px, 0 0 2px, 0 0 1em var(--neon-pink-color),
+    0 0 0.5em var(--neon-pink-color), 0 0 0.1em var(--neon-pink-color),
+    0 10px 3px #000;
+}
+
 .center-box > a:hover {
   box-shadow: 0 0 0.2rem #fff, 0 0 0.2rem #fff, 0 0 2rem var(--neon-pink-color),
     0 0 0.8rem var(--neon-pink-color), 0 0 2.8rem var(--neon-pink-color),
