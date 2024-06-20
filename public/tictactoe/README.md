@@ -1,1 +1,1 @@
-![alt text](relative%20img\restart.png?raw=true "restart")
+![restart img](img/restart.png)
