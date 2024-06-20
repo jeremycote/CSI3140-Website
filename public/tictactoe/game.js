@@ -5,6 +5,10 @@ var slots = [];
 var restart_button;
 
 var current_player = 0;
+var counter = 0;
+var score;
+var scoreElement;
+
 var is_hovering_valid_slot = false;
 
 var game_over = false;
@@ -24,14 +28,44 @@ function is_game_over() {
       slots[i].innerHTML == slots[i + 3].innerHTML &&
       slots[i].innerHTML == slots[i + 6].innerHTML
     ) {
+      if (current_player == 0){
+        scoreElement = document.getElementById("x_score");      
+        score = parseInt(scoreElement.textContent);
+        score++;
+        scoreElement.textContent = score.toString();
+      }
+      else{
+        scoreElement = document.getElementById("o_score");
+        score = parseInt(scoreElement.textContent);
+        score++;
+        scoreElement.textContent = score.toString();
+      }
+      
+      counter = 0;
       return [i, i + 3, i + 6];
     }
+  }
 
+  for(var i = 0; i < 9; i+=3){
     if (
       slots[i].innerHTML != "" &&
       slots[i].innerHTML == slots[i + 1].innerHTML &&
       slots[i].innerHTML == slots[i + 2].innerHTML
     ) {
+      if (current_player == 0){
+        scoreElement = document.getElementById("x_score");
+        score = parseInt(scoreElement.textContent);
+        score++;
+        scoreElement.textContent = score.toString();
+      }
+      else{
+        scoreElement = document.getElementById("o_score");
+        score = parseInt(scoreElement.textContent);
+        score++;
+        scoreElement.textContent = score.toString();
+      }
+
+      counter = 0;
       return [i, i + 1, i + 2];
     }
   }
@@ -41,12 +75,40 @@ function is_game_over() {
     slots[0].innerHTML == slots[4].innerHTML &&
     slots[0].innerHTML == slots[8].innerHTML
   ) {
+    if (current_player == 0){
+      scoreElement = document.getElementById("x_score");
+      score = parseInt(scoreElement.textContent);
+      score++;
+      scoreElement.textContent = score.toString();
+    }
+    else{
+      scoreElement = document.getElementById("o_score"); 
+      score = parseInt(scoreElement.textContent);
+      score++;
+      scoreElement.textContent = score.toString();
+    }
+
+    counter = 0;
     return [0, 4, 8];
   } else if (
     slots[2].innerHTML != "" &&
     slots[2].innerHTML == slots[4].innerHTML &&
     slots[2].innerHTML == slots[6].innerHTML
   ) {
+    if (current_player == 0){
+      scorescoreElementElement = document.getElementById("x_score");      
+      score = parseInt(scoreElement.textContent);
+      score++;
+      scoreElement.textContent = score.toString();
+    }
+    else{
+      scoreElement = document.getElementById("o_score");      
+      score = parseInt(scoreElement.textContent);
+      score++;
+      scoreElement.textContent = score.toString();
+    }
+
+    counter = 0;
     return [2, 4, 6];
   }
 
@@ -55,6 +117,13 @@ function is_game_over() {
 
 function next_player() {
   current_player = (current_player + 1) % 2;
+  counter++;
+  if(counter == 9){
+    counter = 0;
+    game_over = true;
+    restart_button.style.visibility = "visible";
+  }
+  return
 }
 
 function play_turn(slot) {
