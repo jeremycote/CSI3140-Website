@@ -1,155 +1,68 @@
 console.log("Welcome to Tic Tac Toe!");
 
 var slots = [];
-
 var restart_button;
-
+var game_over = false;
 var current_player = 0;
-var counter = 0;
-var score;
-var scoreElement;
-
 var is_hovering_valid_slot = false;
 
-var game_over = false;
-
 function get_current_player_token_html() {
-  if (current_player == 0) {
-    return "<p class='colour-x'>X</p>";
+  console.log("Current Player: ", current_player);
+  return current_player === 0
+    ? "<p class='colour-x'>X</p>"
+    : "<p class='colour-o'>O</p>";
+}
+
+function updateBoard(board) {
+  for (var i = 0; i < board.length; i++) {
+    if (board[i] !== null) {
+      slots[i].innerHTML = `<p class='${
+        board[i] === 0 ? "colour-x" : "colour-o"
+      }'>${board[i] === 0 ? "X" : "O"}</p>`;
+    } else {
+      slots[i].innerHTML = "";
+    }
+  }
+}
+
+function handleStatus(data) {
+  if (data.board !== null) {
+    updateBoard(data.board);
+  }
+
+  if (data.currentPlayer !== null) {
+    console.log("Received player: ", data.currentPlayer);
+    current_player = data.currentPlayer;
+  }
+
+  if (data.status !== "continue" && data.status !== "reset") {
+    game_over = true;
+    restart_button.style.visibility = "visible";
   } else {
-    return "<p class='colour-o'>O</p>";
+    game_over = false;
+    restart_button.style.visibility = "hidden";
   }
+
+  // TODO: Present pretty UI elements for game events such as draw, win or restart
 }
 
-function is_game_over() {
-  for (var i = 0; i < 3; i++) {
-    if (
-      slots[i].innerHTML != "" &&
-      slots[i].innerHTML == slots[i + 3].innerHTML &&
-      slots[i].innerHTML == slots[i + 6].innerHTML
-    ) {
-      if (current_player == 0){
-        scoreElement = document.getElementById("x_score");      
-        score = parseInt(scoreElement.textContent);
-        score++;
-        scoreElement.textContent = score.toString();
-      }
-      else{
-        scoreElement = document.getElementById("o_score");
-        score = parseInt(scoreElement.textContent);
-        score++;
-        scoreElement.textContent = score.toString();
-      }
-      
-      counter = 0;
-      return [i, i + 3, i + 6];
-    }
-  }
-
-  for(var i = 0; i < 9; i+=3){
-    if (
-      slots[i].innerHTML != "" &&
-      slots[i].innerHTML == slots[i + 1].innerHTML &&
-      slots[i].innerHTML == slots[i + 2].innerHTML
-    ) {
-      if (current_player == 0){
-        scoreElement = document.getElementById("x_score");
-        score = parseInt(scoreElement.textContent);
-        score++;
-        scoreElement.textContent = score.toString();
-      }
-      else{
-        scoreElement = document.getElementById("o_score");
-        score = parseInt(scoreElement.textContent);
-        score++;
-        scoreElement.textContent = score.toString();
-      }
-
-      counter = 0;
-      return [i, i + 1, i + 2];
-    }
-  }
-
-  if (
-    slots[0].innerHTML != "" &&
-    slots[0].innerHTML == slots[4].innerHTML &&
-    slots[0].innerHTML == slots[8].innerHTML
-  ) {
-    if (current_player == 0){
-      scoreElement = document.getElementById("x_score");
-      score = parseInt(scoreElement.textContent);
-      score++;
-      scoreElement.textContent = score.toString();
-    }
-    else{
-      scoreElement = document.getElementById("o_score"); 
-      score = parseInt(scoreElement.textContent);
-      score++;
-      scoreElement.textContent = score.toString();
-    }
-
-    counter = 0;
-    return [0, 4, 8];
-  } else if (
-    slots[2].innerHTML != "" &&
-    slots[2].innerHTML == slots[4].innerHTML &&
-    slots[2].innerHTML == slots[6].innerHTML
-  ) {
-    if (current_player == 0){
-      scorescoreElementElement = document.getElementById("x_score");      
-      score = parseInt(scoreElement.textContent);
-      score++;
-      scoreElement.textContent = score.toString();
-    }
-    else{
-      scoreElement = document.getElementById("o_score");      
-      score = parseInt(scoreElement.textContent);
-      score++;
-      scoreElement.textContent = score.toString();
-    }
-
-    counter = 0;
-    return [2, 4, 6];
-  }
-
-  return [];
-}
-
-function next_player() {
-  current_player = (current_player + 1) % 2;
-  counter++;
-  if(counter == 9){
-    counter = 0;
-    game_over = true;
-    restart_button.style.visibility = "visible";
-  }
-  return
-}
-
-function play_turn(slot) {
-  if (game_over) {
-    return;
-  }
-
-  slot.innerHTML = get_current_player_token_html();
-
-  var is_over = is_game_over();
-
-  if (is_over.length != 0) {
-    console.log(is_over);
-    game_over = true;
-
-    restart_button.style.visibility = "visible";
-
-    for (var i = 0; i < 3; i++) {
-      var index = is_over[i];
-      slots[index].classList.add("background-winner");
-    }
-
-    return;
-  }
-
-  next_player();
+/**
+ * Attempt to play at position
+ * @param position integer id of slot
+ */
+function playTurn(position) {
+  fetch("game.php", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: `position=${position}`,
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      handleStatus(data);
+    })
+    .catch((error) => console.error("Error:", error));
 }
 
 window.addEventListener("load", function () {
@@ -180,40 +93,39 @@ window.addEventListener("load", function () {
     });
 
     slot.addEventListener("click", (event) => {
-      if (!is_hovering_valid_slot) {
+      if (!is_hovering_valid_slot || game_over) {
         return;
       }
 
       is_hovering_valid_slot = false;
-
-      play_turn(event.target);
-
-      var open = [];
-
-      for (var i = 0; i < 9; i++) {
-        if (slots[i].innerHTML == "") {
-          open.push(i);
-        }
-      }
-
-      var i = Math.floor(Math.random() * open.length);
-      var index = open[i];
-      play_turn(slots[index]);
+      playTurn(parseInt(event.target.getAttribute("data-slot")));
     });
   });
 
   restart_button = document.getElementById("restart-button");
   restart_button.addEventListener("click", (event) => {
-    for (var i = 0; i < 9; i++) {
-      slots[i].innerHTML = "";
-      slots[i].classList.remove("background-winner");
-    }
-
-    game_over = false;
-    current_player = 0;
-
-    restart_button.style.visibility = "hidden";
+    fetch("game.php", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: `reset=true`,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        handleStatus(data);
+      });
   });
 
   restart_button.style.visibility = "hidden";
+
+  // Fetch game state on page load
+  fetch("game.php", {
+    method: "GET",
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      handleStatus(data);
+    })
+    .catch((error) => console.error("Error:", error));
 });
