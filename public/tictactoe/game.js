@@ -5,6 +5,8 @@ var restart_button;
 var game_over = false;
 var current_player = 0;
 var is_hovering_valid_slot = false;
+var o_score_element;
+var x_score_element;
 
 function get_current_player_token_html() {
   console.log("Current Player: ", current_player);
@@ -41,6 +43,24 @@ function handleStatus(data) {
   } else {
     game_over = false;
     restart_button.style.visibility = "hidden";
+  }
+
+  if (data.status === "win") {
+    slots[data.winner[1]].classList.add("background-winner");
+    slots[data.winner[2]].classList.add("background-winner");
+    slots[data.winner[3]].classList.add("background-winner");
+  } else {
+    for (var i = 0; i < 9; i++) {
+      slots[i].classList.remove("background-winner");
+    }
+  }
+
+  if (data.xWins !== null) {
+    x_score_element.innerHTML = data.xWins;
+  }
+
+  if (data.oWins != null) {
+    o_score_element.innerHTML = data.oWins;
   }
 
   // TODO: Present pretty UI elements for game events such as draw, win or restart
@@ -101,6 +121,9 @@ window.addEventListener("load", function () {
       playTurn(parseInt(event.target.getAttribute("data-slot")));
     });
   });
+
+  x_score_element = document.getElementById("x_score");
+  o_score_element = document.getElementById("o_score");
 
   restart_button = document.getElementById("restart-button");
   restart_button.addEventListener("click", (event) => {

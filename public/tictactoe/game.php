@@ -40,7 +40,9 @@ function resetGame(): void
 }
 
 // Initialize game state if not set
-if (!isset($_SESSION['board']) || !isset($_SESSION['currentPlayer']) || !isset($_SESSION['gameOver']) || !isset($_SESSION['counter'])) {
+if (!isset($_SESSION['board']) || !isset($_SESSION['currentPlayer']) || !isset($_SESSION['gameOver']) || !isset($_SESSION['counter']) || !isset($_SESSION['oWins']) || !isset($_SESSION['xWins'])) {
+    $_SESSION['oWins'] = 0;
+    $_SESSION['xWins'] = 0;
     resetGame();
 }
 
@@ -57,7 +59,7 @@ function isValidMove(array $board, int $position): bool
 }
 
 // Function to check for a win
-function checkWin(array $board): ?string
+function checkWin(array $board): ?array
 {
     $winningCombos = [
         [0, 1, 2],
@@ -76,7 +78,7 @@ function checkWin(array $board): ?string
             $board[$combo[0]] === $board[$combo[1]] &&
             $board[$combo[1]] === $board[$combo[2]]
         ) {
-            return $board[$combo[0]];
+            return [$board[$combo[0]], $combo[0], $combo[1], $combo[2]];
         }
     }
 
@@ -99,7 +101,7 @@ function computeState()
 
     $status = $winner !== null ? 'win' : ($draw ? 'draw' : 'continue');
 
-    return ['status' => $status, 'winner' => $winner, 'currentPlayer' => $_SESSION['currentPlayer'], 'board' => $_SESSION['board']];
+    return ['status' => $status, 'winner' => $winner, 'currentPlayer' => $_SESSION['currentPlayer'], 'board' => $_SESSION['board'], 'oWins' => $_SESSION['oWins'], 'xWins' => $_SESSION['xWins']];
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -135,6 +137,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($response['status'] === 'continue') {
             ServerLogger::log("Increment currentPlayer", $_SESSION['currentPlayer']);
             $_SESSION['currentPlayer'] = ($_SESSION['currentPlayer'] + 1) % 2;
+            $response = computeState();
+        } else if ($response['status'] === 'win') {
+            if ($response['winner'][0] === 0) {
+                $_SESSION['xWins'] = $_SESSION['xWins'] + 1;
+            } else {
+                $_SESSION['oWins'] = $_SESSION['oWins'] + 1;
+            }
             $response = computeState();
         }
     } else {
