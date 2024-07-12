@@ -1,6 +1,7 @@
 console.log("Welcome to Tic Tac Toe!");
 
 var slots = [];
+//var leadSlots = [];
 var restart_button;
 var game_over = false;
 var current_player = 0;
@@ -27,10 +28,16 @@ function updateBoard(board) {
   }
 }
 
+
+
 function handleStatus(data) {
   if (data.board !== null) {
     updateBoard(data.board);
   }
+
+  //if (data.leaderboard !== null) {
+    //updateLeaderboard(data.board);
+  //}
 
   if (data.currentPlayer !== null) {
     console.log("Received player: ", data.currentPlayer);
@@ -87,6 +94,7 @@ function playTurn(position) {
 
 window.addEventListener("load", function () {
   slots = document.querySelectorAll("[data-slot]");
+  //leadSlots = document.querySelectorAll("[data-leadSlot]");
 
   slots.forEach((slot) => {
     slot.addEventListener("mouseenter", (event) => {

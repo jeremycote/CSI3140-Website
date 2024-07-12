@@ -51,6 +51,15 @@ nav > a:hover {
   font-size: 1.5em;
 }
 
+.center > .right {
+  display: flex;
+  justify-content: center;
+  justify-content: end;
+  margin-right : 5em;
+  font-size: 1.5em;
+}
+
+
 .game-grid {
   margin-inline: auto;
   display: grid;

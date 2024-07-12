@@ -85,9 +85,29 @@ function checkWin(array $board): ?array
     return null;
 }
 
+function updateScores(int $win)
+{
+    if($_SESSION['pointer'] != null){
+        $_SESSION['scores'][$_SESSION['pointer']]['score']++;
+    }
+
+    else{
+        $_SESSION['scores'][] = [ $win, 1 ];
+        $_SESSION['pointer'] = count($_SESSION['scores'])-1;
+    }
+}
+
+function compareScore($a, $b) {
+    return $a['score'] - $b['score'];
+}
+ 
 function computeState()
 {
     $winner = checkWin($_SESSION['board']);
+
+    $leaderboard = $_SESSION['scores'];
+    usort($leaderboard, 'compareScore');
+    $leaderboard = array_slice($leaderboard, 0, 9);
 
     if ($winner !== null) {
         $_SESSION['gameOver'] = true;
@@ -101,7 +121,7 @@ function computeState()
 
     $status = $winner !== null ? 'win' : ($draw ? 'draw' : 'continue');
 
-    return ['status' => $status, 'winner' => $winner, 'currentPlayer' => $_SESSION['currentPlayer'], 'board' => $_SESSION['board'], 'oWins' => $_SESSION['oWins'], 'xWins' => $_SESSION['xWins']];
+    return ['status' => $status, 'winner' => $winner, 'leaderboard' => $leaderboard, 'currentPlayer' => $_SESSION['currentPlayer'], 'board' => $_SESSION['board'], 'oWins' => $_SESSION['oWins'], 'xWins' => $_SESSION['xWins']];
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -140,9 +160,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $response = computeState();
         } else if ($response['status'] === 'win') {
             if ($response['winner'][0] === 0) {
+                if($_SESSION['scores'][$_SESSION['pointer']]['player'] != 0){
+                    $_SESSION['pointer'] = null;
+                }
                 $_SESSION['xWins'] = $_SESSION['xWins'] + 1;
+                updateScores(0);
             } else {
+                if($_SESSION['scores'][$_SESSION['pointer']]['player'] != 1){
+                    $_SESSION['pointer'] = null;
+                }
                 $_SESSION['oWins'] = $_SESSION['oWins'] + 1;
+                updateScores(1);
             }
             $response = computeState();
         }
