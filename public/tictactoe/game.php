@@ -70,6 +70,11 @@ function isValidMove(array $board, int $position): bool
     return isset($board) && $board[$position] === null;
 }
 
+function getComputerMove(): int
+{
+    return rand(0, 8);
+}
+
 // Function to check for a win
 function checkWin(array $board): ?array
 {
@@ -116,6 +121,8 @@ function compareScores($a, $b) {
 
 function computeState()
 {
+
+    //resetGame();
     $winner = checkWin($_SESSION['board']);
 
     $leaderboard = $_SESSION['scores'];
@@ -162,16 +169,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $position = intval($_POST['position']);
     if (isValidMove($_SESSION['board'], $position) && !$_SESSION['gameOver']) {
-        $_SESSION['board'][$position] = $_SESSION['currentPlayer'];
+        $_SESSION['board'][$position] = 0;
         $_SESSION['counter']++;
+        
 
         $response = computeState();
 
-        if ($response['status'] === 'continue') {
-            ServerLogger::log("Increment currentPlayer", $_SESSION['currentPlayer']);
-            $_SESSION['currentPlayer'] = ($_SESSION['currentPlayer'] + 1) % 2;
-            $response = computeState();
-        } else if ($response['status'] === 'win') {
+        if ($response['status'] === 'win') {
             if ($response['winner'][0] === 0) {
                 $_SESSION['xWins'] = $_SESSION['xWins'] + 1;
             } else {
@@ -190,6 +194,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $response = computeState();
         $response['status'] = 'invalid';
     }
+
+    if (!$_SESSION['gameOver']){
+
+        do {
+            $move = getComputerMove();
+          } while (!isValidMove($_SESSION['board'], $move));
+    
+        $_SESSION['board'][$move] = 1;
+        $_SESSION['counter']++;
+    
+        $response = computeState();
+
+        if ($response['status'] === 'win') {
+            if ($response['winner'][0] === 0) {
+                $_SESSION['xWins'] = $_SESSION['xWins'] + 1;
+            } else {
+                $_SESSION['oWins'] = $_SESSION['oWins'] + 1;
+            }
+    
+            $switch = 0;
+            if($_SESSION['scores'][$_SESSION['pointer']]['player'] !== $response['winner'][0]) {
+                $switch = 1;
+            }
+            updateScores($response['winner'][0], $switch);
+    
+            $response = computeState();
+        }
+
+    }
+
 
     ServerLogger::log("Response: ", $response);
 

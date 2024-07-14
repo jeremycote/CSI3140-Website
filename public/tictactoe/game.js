@@ -48,11 +48,6 @@ function handleStatus(data) {
   }
 
 
-  if (data.currentPlayer !== null) {
-    console.log("Received player: ", data.currentPlayer);
-    current_player = data.currentPlayer;
-  }
-
   if (data.status !== "continue" && data.status !== "reset") {
     game_over = true;
     restart_button.style.visibility = "visible";
