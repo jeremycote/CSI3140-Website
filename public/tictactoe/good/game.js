@@ -1,7 +1,6 @@
 console.log("Welcome to Tic Tac Toe!");
 
 var slots = [];
-var leadSlots = [];
 var restart_button;
 var game_over = false;
 var current_player = 0;
@@ -28,25 +27,10 @@ function updateBoard(board) {
   }
 }
 
-function updateLeaderboard(leaderboard) {
-  for (var i = 0; i < leaderboard.length; i++) {
-    if (leaderboard[i]['score'] !== null && leaderboard[i]['player'] !== null) {
-      leadSlots[i].innerHTML = `<li> <a class='${
-        leaderboard[i]['player'] === 0 ? "colour-x" : "colour-o"
-      }'>${leaderboard[i]['player'] === 0 ? "X" : "O"}<a> => ${leaderboard[i]['score']}</li>`;
-    } else {
-      leadSlots[i].innerHTML = "";
-    }
-  }
-}
-
-
-
 function handleStatus(data) {
   if (data.board !== null) {
     updateBoard(data.board);
   }
-
 
   if (data.currentPlayer !== null) {
     console.log("Received player: ", data.currentPlayer);
@@ -65,7 +49,6 @@ function handleStatus(data) {
     slots[data.winner[1]].classList.add("background-winner");
     slots[data.winner[2]].classList.add("background-winner");
     slots[data.winner[3]].classList.add("background-winner");
-    updateLeaderboard(data.leaderboard);
   } else {
     for (var i = 0; i < 9; i++) {
       slots[i].classList.remove("background-winner");
@@ -104,7 +87,6 @@ function playTurn(position) {
 
 window.addEventListener("load", function () {
   slots = document.querySelectorAll("[data-slot]");
-  leadSlots = document.querySelectorAll("[data-leadSlot]");
 
   slots.forEach((slot) => {
     slot.addEventListener("mouseenter", (event) => {

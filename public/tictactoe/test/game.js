@@ -28,12 +28,12 @@ function updateBoard(board) {
   }
 }
 
-function updateLeaderboard(leaderboard) {
+function updateleaderboard(leaderboard) {
   for (var i = 0; i < leaderboard.length; i++) {
-    if (leaderboard[i]['score'] !== null && leaderboard[i]['player'] !== null) {
-      leadSlots[i].innerHTML = `<li> <a class='${
-        leaderboard[i]['player'] === 0 ? "colour-x" : "colour-o"
-      }'>${leaderboard[i]['player'] === 0 ? "X" : "O"}<a> => ${leaderboard[i]['score']}</li>`;
+    if (leaderboard[i] !== null) {
+      leadSlots[i].innerHTML = `<li class='${
+        leaderboard[i][1] === 0 ? "colour-x" : "colour-o"
+      }'>${leaderboard[i][1] === 0 ? "X" : "O"} => ${leaderboard[i][0]}</li>`;
     } else {
       leadSlots[i].innerHTML = "";
     }

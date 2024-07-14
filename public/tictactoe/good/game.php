@@ -43,18 +43,6 @@ function resetGame(): void
 if (!isset($_SESSION['board']) || !isset($_SESSION['currentPlayer']) || !isset($_SESSION['gameOver']) || !isset($_SESSION['counter']) || !isset($_SESSION['oWins']) || !isset($_SESSION['xWins'])) {
     $_SESSION['oWins'] = 0;
     $_SESSION['xWins'] = 0;
-    $_SESSION['pointer'] = 0;
-    $_SESSION['scores'] = array(array('score' => 0, 'player' =>0),
-                                array('score' => 0, 'player' =>1),
-                                array('score' => 0, 'player' =>0),
-                                array('score' => 0, 'player' =>1),
-                                array('score' => 0, 'player' =>0),
-                                array('score' => 0, 'player' =>1),
-                                array('score' => 0, 'player' =>0),
-                                array('score' => 0, 'player' =>1),
-                                array('score' => 0, 'player' =>0),
-                                array('score' => 0, 'player' =>1)
-                              );
     resetGame();
 }
 
@@ -97,30 +85,9 @@ function checkWin(array $board): ?array
     return null;
 }
 
-
-function updateScores(int $win, int $switch) 
-{
-
-    if($switch == 1){
-        $_SESSION['pointer']++;
-        $_SESSION['scores'][$_SESSION['pointer']] = [ 'score' => 1, 'player' => $win ];
-    }
-    else{
-        $_SESSION['scores'][$_SESSION['pointer']]['score']++;
-    }
-}
-
-function compareScores($a, $b) {
-    return $a[1] - $b[1];
-}
-
 function computeState()
 {
     $winner = checkWin($_SESSION['board']);
-
-    $leaderboard = $_SESSION['scores'];
-    rsort($leaderboard);
-    $leaderboard = array_slice($leaderboard, 0, 10);
 
     if ($winner !== null) {
         $_SESSION['gameOver'] = true;
@@ -134,7 +101,7 @@ function computeState()
 
     $status = $winner !== null ? 'win' : ($draw ? 'draw' : 'continue');
 
-    return ['status' => $status, 'winner' => $winner, 'leaderboard' => $leaderboard, 'currentPlayer' => $_SESSION['currentPlayer'], 'board' => $_SESSION['board'], 'oWins' => $_SESSION['oWins'], 'xWins' => $_SESSION['xWins']];
+    return ['status' => $status, 'winner' => $winner, 'currentPlayer' => $_SESSION['currentPlayer'], 'board' => $_SESSION['board'], 'oWins' => $_SESSION['oWins'], 'xWins' => $_SESSION['xWins']];
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -177,13 +144,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 $_SESSION['oWins'] = $_SESSION['oWins'] + 1;
             }
-
-            $switch = 0;
-            if($_SESSION['scores'][$_SESSION['pointer']]['player'] !== $response['winner'][0]) {
-                $switch = 1;
-            }
-            updateScores($response['winner'][0], $switch);
-
             $response = computeState();
         }
     } else {
