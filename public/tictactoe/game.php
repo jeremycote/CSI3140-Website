@@ -44,17 +44,18 @@ if (!isset($_SESSION['board']) || !isset($_SESSION['currentPlayer']) || !isset($
     $_SESSION['oWins'] = 0;
     $_SESSION['xWins'] = 0;
     $_SESSION['pointer'] = 0;
-    $_SESSION['scores'] = array(array('score' => 0, 'player' =>0),
-                                array('score' => 0, 'player' =>1),
-                                array('score' => 0, 'player' =>0),
-                                array('score' => 0, 'player' =>1),
-                                array('score' => 0, 'player' =>0),
-                                array('score' => 0, 'player' =>1),
-                                array('score' => 0, 'player' =>0),
-                                array('score' => 0, 'player' =>1),
-                                array('score' => 0, 'player' =>0),
-                                array('score' => 0, 'player' =>1)
-                              );
+    $_SESSION['scores'] = array(
+        array('score' => 0, 'player' => 0),
+        array('score' => 0, 'player' => 1),
+        array('score' => 0, 'player' => 0),
+        array('score' => 0, 'player' => 1),
+        array('score' => 0, 'player' => 0),
+        array('score' => 0, 'player' => 1),
+        array('score' => 0, 'player' => 0),
+        array('score' => 0, 'player' => 1),
+        array('score' => 0, 'player' => 0),
+        array('score' => 0, 'player' => 1)
+    );
     resetGame();
 }
 
@@ -103,19 +104,19 @@ function checkWin(array $board): ?array
 }
 
 
-function updateScores(int $win, int $switch) 
+function updateScores(int $win, int $switch)
 {
 
-    if($switch == 1){
+    if ($switch == 1) {
         $_SESSION['pointer']++;
-        $_SESSION['scores'][$_SESSION['pointer']] = [ 'score' => 1, 'player' => $win ];
-    }
-    else{
+        $_SESSION['scores'][$_SESSION['pointer']] = ['score' => 1, 'player' => $win];
+    } else {
         $_SESSION['scores'][$_SESSION['pointer']]['score']++;
     }
 }
 
-function compareScores($a, $b) {
+function compareScores($a, $b)
+{
     return $a[1] - $b[1];
 }
 
@@ -171,7 +172,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isValidMove($_SESSION['board'], $position) && !$_SESSION['gameOver']) {
         $_SESSION['board'][$position] = 0;
         $_SESSION['counter']++;
-        
+
 
         $response = computeState();
 
@@ -183,7 +184,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             $switch = 0;
-            if($_SESSION['scores'][$_SESSION['pointer']]['player'] !== $response['winner'][0]) {
+            if ($_SESSION['scores'][$_SESSION['pointer']]['player'] !== $response['winner'][0]) {
                 $switch = 1;
             }
             updateScores($response['winner'][0], $switch);
@@ -195,15 +196,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $response['status'] = 'invalid';
     }
 
-    if (!$_SESSION['gameOver']){
+    if (!$_SESSION['gameOver']) {
 
         do {
             $move = getComputerMove();
-          } while (!isValidMove($_SESSION['board'], $move));
-    
+        } while (!isValidMove($_SESSION['board'], $move));
+
         $_SESSION['board'][$move] = 1;
         $_SESSION['counter']++;
-    
+
         $response = computeState();
 
         if ($response['status'] === 'win') {
@@ -212,13 +213,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 $_SESSION['oWins'] = $_SESSION['oWins'] + 1;
             }
-    
+
             $switch = 0;
-            if($_SESSION['scores'][$_SESSION['pointer']]['player'] !== $response['winner'][0]) {
+            if ($_SESSION['scores'][$_SESSION['pointer']]['player'] !== $response['winner'][0]) {
                 $switch = 1;
             }
             updateScores($response['winner'][0], $switch);
-    
+
             $response = computeState();
         }
 

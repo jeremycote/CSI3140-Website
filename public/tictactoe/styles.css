@@ -51,7 +51,7 @@ nav > a:hover {
   font-size: 1.5em;
 }
 
-button{
+button {
   margin-inline: auto;
   margin-top: 2em;
   margin-bottom: 2em;
@@ -59,14 +59,24 @@ button{
   font-size: 2em;
 }
 
-.side{
-  float: left;
-  width: 30%;
+.center-grid {
+  display: flex;
+  flex-direction: column;
 }
 
-.center-grid{
-  float: left;
-  width: 70%; 
+@media screen and (min-width: 700px) {
+  .center-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+  }
+
+  .center-grid > .side {
+    width: 100%;
+  }
+
+  .center-grid > .side > .leaderboard-list {
+    width: 100%;
+  }
 }
 
 .leaderboard-list {
@@ -74,24 +84,18 @@ button{
   padding-left: 1em;
   padding-right: 1em;
   padding-bottom: 0.5em;
-  margin-top: 9em;
-  margin-right: 1em;
-  margin-left: 1em;
+  margin-top: 1em;
+  margin-right: 2em;
+  margin-left: 2em;
   min-width: 5em;
   background-color: var(--colour-background);
-  box-shadow: 0 0 0.3em rgba(0,0,0,0.1); 
+  box-shadow: 0 0 0.3em rgba(0, 0, 0, 0.1);
   font-size: 1.5em;
 }
 
 .leaderboard-list li {
   margin-bottom: 0.5em; /* Adjust spacing between items */
-  margin-right: 10em;
-  padding-left: 1em;
-  padding-right: 1em;
-  margin-left: 1em;
-  min-width: 10em;
 }
-
 
 .game-grid {
   margin-inline: auto;
@@ -133,4 +137,9 @@ button{
 
 .background-winner {
   background: var(--colour-winner);
+}
+
+.side {
+  display: flex;
+  align-items: center;
 }
