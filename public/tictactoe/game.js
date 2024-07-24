@@ -9,6 +9,24 @@ var is_hovering_valid_slot = false;
 var o_score_element;
 var x_score_element;
 
+function logout() {
+  console.log("Logging out");
+  fetch("game.php", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: `logout=${true}`,
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success == true) {
+        window.location.reload();
+      }
+    })
+    .catch((error) => console.error("Error:", error));
+}
+
 function get_current_player_token_html() {
   console.log("Current Player: ", current_player);
   return current_player === 0
@@ -30,23 +48,22 @@ function updateBoard(board) {
 
 function updateLeaderboard(leaderboard) {
   for (var i = 0; i < leaderboard.length; i++) {
-    if (leaderboard[i]['score'] !== null && leaderboard[i]['player'] !== null) {
+    if (leaderboard[i]["score"] !== null && leaderboard[i]["player"] !== null) {
       leadSlots[i].innerHTML = `<li> <a class='${
-        leaderboard[i]['player'] === 0 ? "colour-x" : "colour-o"
-      }'>${leaderboard[i]['player'] === 0 ? "X" : "O"}<a> => ${leaderboard[i]['score']}</li>`;
+        leaderboard[i]["player"] === 0 ? "colour-x" : "colour-o"
+      }'>${leaderboard[i]["player"] === 0 ? "X" : "O"}<a> => ${
+        leaderboard[i]["score"]
+      }</li>`;
     } else {
       leadSlots[i].innerHTML = "";
     }
   }
 }
 
-
-
 function handleStatus(data) {
   if (data.board !== null) {
     updateBoard(data.board);
   }
-
 
   if (data.status !== "continue" && data.status !== "reset") {
     game_over = true;

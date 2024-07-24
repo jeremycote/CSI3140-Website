@@ -29,7 +29,34 @@ final class ServerLogger
     }
 }
 
+// pg_connect("host=localhost dbname=tictacoe user=admin password=password");
+
 session_start();
+
+if (!isset($_SERVER['PHP_AUTH_USER'])) {
+    header('WWW-Authenticate: Basic realm="My Realm"');
+    header('HTTP/1.0 401 Unauthorized');
+    exit;
+}
+
+function logout()
+{
+    ServerLogger::log('Logout: ', $_SERVER['PHP_AUTH_USER']);
+    if (isset($_SERVER['PHP_AUTH_USER'])) {
+        $_SERVER['PHP_AUTH_USER'] = "";
+        unset($_SERVER['PHP_AUTH_USER']);
+    }
+
+    if (isset($_SERVER['PHP_AUTH_PW'])) {
+        $_SERVER['PHP_AUTH_PW'] = "";
+        unset($_SERVER['PHP_AUTH_PW']);
+    }
+    ServerLogger::log("Logged out: ", $_SERVER['PHP_AUTH_USER']);
+
+    session_destroy();
+
+    header('WWW-Authenticate: Basic realm="My Realm"');
+}
 
 function resetGame(): void
 {
@@ -157,6 +184,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ServerLogger::log($_POST);
+
+    if (isset($_POST['logout']) && $_POST['logout'] == true) {
+        logout();
+
+        echo json_encode(['success' => true]);
+        exit;
+    }
 
     if (isset($_POST['reset'])) {
         resetGame();
