@@ -1,9 +1,21 @@
+<?php
+session_start();
+
+// Check if user is not logged in
+if (!isset($_SESSION['user_id'])) {
+    // Redirect to login page
+    header("Location: login.php");
+    exit();
+}
+?>
+
 <html>
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <title>Tic Tac Toe</title>
+    <link type="text/css" href="global.css" rel="stylesheet" />
     <link type="text/css" href="styles.css" rel="stylesheet" />
     <script src="game.js"></script>
 </head>
@@ -12,13 +24,16 @@
     <nav>
         <a style="margin-right: 1em" href="../index.html">Return Home</a>
 
-        <?php if (isset($_SERVER['PHP_AUTH_USER'])): ?>
-            <?php
-            $name = $_SERVER['PHP_AUTH_USER'];
-            echo "<a>$name</a>";
-            ?>
-            <button onclick="javascript:logout()">Logout</button>
-        <?php endif; ?>
+        <?php
+        $name = $_SESSION['username'];
+        echo "<a>User: $name</a>";
+        ?>
+        <?php
+        if ($_SESSION['is_admin']) {
+            echo "<a href='admin.php'>Admin Panel</a>";
+        }
+        ?>
+        <button onclick="javascript:logout()">Logout</button>
     </nav>
     <div class="center-grid">
         <div class="side"></div>
@@ -45,7 +60,7 @@
         </div>
         <div class="side">
             <div class="leaderboard-list">
-                <b>10 best wins in a row</b>
+                <b>Leaderboard</b>
                 <ol>
                     <div data-leadSlot="0"></div>
                     <div data-leadSlot="1"></div>

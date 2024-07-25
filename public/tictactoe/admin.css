@@ -1,0 +1,36 @@
+h1 {
+  padding-inline: 0.5em;
+}
+
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  padding-inline: 1em;
+}
+
+.game-card {
+  border: 1px solid #ccc;
+  padding: 10px;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  width: 150px;
+  margin: 10px 0;
+}
+
+.cell {
+  width: 50px;
+  height: 50px;
+  border: 1px solid #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.winning-move {
+  background-color: var(--colour-winner);
+}

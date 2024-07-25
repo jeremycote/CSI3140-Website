@@ -1,89 +1,50 @@
 <?php
 
-define('STDOUT', fopen('php://stdout', 'w'));
-
-/**
- * This is for development purpose ONLY !
- */
-final class ServerLogger
-{
-
-    /**
-     * send a log message to the STDOUT stream.
-     *
-     * @param array<int, mixed> $args
-     *
-     * @return void
-     */
-    public static function log(...$args): void
-    {
-        foreach ($args as $arg) {
-            if (is_object($arg) || is_array($arg) || is_resource($arg)) {
-                $output = print_r($arg, true);
-            } else {
-                $output = (string) $arg;
-            }
-
-            fwrite(STDOUT, $output . "\n");
-        }
-    }
-}
-
-// pg_connect("host=localhost dbname=tictacoe user=admin password=password");
-
 session_start();
 
-if (!isset($_SERVER['PHP_AUTH_USER'])) {
-    header('WWW-Authenticate: Basic realm="My Realm"');
-    header('HTTP/1.0 401 Unauthorized');
-    exit;
+// Check if user is not logged in
+if (!isset($_SESSION['user_id'])) {
+    // Redirect to login page
+    header("Location: login.php");
+    exit();
 }
 
-function logout()
+require_once 'log.php';
+require_once 'db.php';
+
+function getCurrentGame($user_id)
 {
-    ServerLogger::log('Logout: ', $_SERVER['PHP_AUTH_USER']);
-    if (isset($_SERVER['PHP_AUTH_USER'])) {
-        $_SERVER['PHP_AUTH_USER'] = "";
-        unset($_SERVER['PHP_AUTH_USER']);
-    }
+    global $db;
+    $result = $db->query("SELECT * FROM games WHERE user_id = $user_id ORDER BY created_at DESC LIMIT 1");
+    return $db->fetchAssoc($result);
+}
 
-    if (isset($_SERVER['PHP_AUTH_PW'])) {
-        $_SERVER['PHP_AUTH_PW'] = "";
-        unset($_SERVER['PHP_AUTH_PW']);
-    }
-    ServerLogger::log("Logged out: ", $_SERVER['PHP_AUTH_USER']);
+function createNewGame($user_id)
+{
+    ServerLogger::log("Creating a new game");
 
-    session_destroy();
+    global $db;
+    $db->query("INSERT INTO games (user_id) VALUES ($user_id)");
 
-    header('WWW-Authenticate: Basic realm="My Realm"');
+    ServerLogger::log("Created new game: ", $db->lastInsertId('games'));
+
+    return $db->lastInsertId('games');
+}
+
+function updateGameState($game_id, $board, $status)
+{
+    global $db;
+    $board = $db->escape($board);
+    $db->query("UPDATE games SET board = '$board', status = '$status' WHERE id = $game_id");
 }
 
 function resetGame(): void
 {
-    $_SESSION['board'] = array_fill(0, 9, null);
-    $_SESSION['currentPlayer'] = 0;
-    $_SESSION['gameOver'] = false;
-    $_SESSION['counter'] = 0;
-}
+    ServerLogger::log("Reseting game state");
 
-// Initialize game state if not set
-if (!isset($_SESSION['board']) || !isset($_SESSION['currentPlayer']) || !isset($_SESSION['gameOver']) || !isset($_SESSION['counter']) || !isset($_SESSION['oWins']) || !isset($_SESSION['xWins'])) {
-    $_SESSION['oWins'] = 0;
-    $_SESSION['xWins'] = 0;
-    $_SESSION['pointer'] = 0;
-    $_SESSION['scores'] = array(
-        array('score' => 0, 'player' => 0),
-        array('score' => 0, 'player' => 1),
-        array('score' => 0, 'player' => 0),
-        array('score' => 0, 'player' => 1),
-        array('score' => 0, 'player' => 0),
-        array('score' => 0, 'player' => 1),
-        array('score' => 0, 'player' => 0),
-        array('score' => 0, 'player' => 1),
-        array('score' => 0, 'player' => 0),
-        array('score' => 0, 'player' => 1)
-    );
-    resetGame();
+    global $db;
+    $user_id = $_SESSION['user_id'];
+    createNewGame($user_id);
 }
 
 function getToken(int $player): string
@@ -94,13 +55,34 @@ function getToken(int $player): string
 // Function to check if the move is valid
 function isValidMove(array $board, int $position): bool
 {
-    ServerLogger::log($board[$position] ?? null);
-    return isset($board) && $board[$position] === null;
+    ServerLogger::log($board[$position] ?? "null");
+    return isset($board) && $board[$position] === '-';
 }
 
-function getComputerMove(): int
+function getComputerMove(array $board_tokens): int|null
 {
-    return rand(0, 8);
+    $counter = rand(5, 19);
+    $n = 0;
+
+    while ($n < $counter) {
+        $l = $n;
+        for ($i = 0; $i < count($board_tokens); $i++) {
+            if ($board_tokens[$i] === '-') {
+                $n++;
+
+                // If we've found n valid moves, return that n'th move
+                if ($n >= $counter) {
+                    return $i;
+                }
+            }
+        }
+
+        if ($l === $n) {
+            return null;
+        }
+    }
+
+    return null;
 }
 
 // Function to check for a win
@@ -119,7 +101,7 @@ function checkWin(array $board): ?array
 
     foreach ($winningCombos as $combo) {
         if (
-            $board[$combo[0]] !== null &&
+            $board[$combo[0]] !== '-' &&
             $board[$combo[0]] === $board[$combo[1]] &&
             $board[$combo[1]] === $board[$combo[2]]
         ) {
@@ -130,52 +112,75 @@ function checkWin(array $board): ?array
     return null;
 }
 
-
-function updateScores(int $win, int $switch)
+function isBoardFull($board)
 {
-
-    if ($switch == 1) {
-        $_SESSION['pointer']++;
-        $_SESSION['scores'][$_SESSION['pointer']] = ['score' => 1, 'player' => $win];
-    } else {
-        $_SESSION['scores'][$_SESSION['pointer']]['score']++;
+    for ($i = 0; $i < count($board); $i++) {
+        if ($board[$i] === "-") {
+            return false;
+        }
     }
+
+    return true;
 }
 
-function compareScores($a, $b)
+function computeState($user_id)
 {
-    return $a[1] - $b[1];
+    global $db;
+    $game = getCurrentGame($user_id);
+
+    if (!$game) {
+        return ['status' => 'no_game'];
+    }
+
+    $board = str_split($game['board']);
+    $winner = checkWin($board);
+
+    $leaderboard = getLeaderboard();
+
+    return [
+        'status' => $game['status'],
+        'winner' => $winner,
+        'leaderboard' => $leaderboard,
+        'board' => $board,
+        'xWins' => getUserWins($user_id),
+        'oWins' => getAIWins($user_id)
+    ];
 }
 
-function computeState()
+function getLeaderboard()
 {
+    global $db;
+    $result = $db->query("SELECT u.username, COUNT(*) as wins FROM games g JOIN users u ON g.user_id = u.id WHERE g.status = 'user_won' GROUP BY u.id ORDER BY wins DESC LIMIT 10");
+    return $db->fetchAll($result);
+}
 
-    //resetGame();
-    $winner = checkWin($_SESSION['board']);
+function getUserWins($user_id)
+{
+    global $db;
+    $result = $db->query("SELECT COUNT(*) as wins FROM games WHERE user_id = $user_id AND status = 'user_won'");
+    $row = $db->fetchAssoc($result);
+    return $row['wins'];
+}
 
-    $leaderboard = $_SESSION['scores'];
-    rsort($leaderboard);
-    $leaderboard = array_slice($leaderboard, 0, 10);
-
-    if ($winner !== null) {
-        $_SESSION['gameOver'] = true;
-    }
-
-    $draw = $winner !== null ? false : $_SESSION['counter'] >= 9;
-
-    if ($draw) {
-        $_SESSION['gameOver'] = true;
-    }
-
-    $status = $winner !== null ? 'win' : ($draw ? 'draw' : 'continue');
-
-    return ['status' => $status, 'winner' => $winner, 'leaderboard' => $leaderboard, 'currentPlayer' => $_SESSION['currentPlayer'], 'board' => $_SESSION['board'], 'oWins' => $_SESSION['oWins'], 'xWins' => $_SESSION['xWins']];
+function getAIWins($user_id)
+{
+    global $db;
+    $result = $db->query("SELECT COUNT(*) as wins FROM games WHERE user_id = $user_id AND status = 'ai_won'");
+    $row = $db->fetchAssoc($result);
+    return $row['wins'];
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     ServerLogger::log($_GET);
 
-    $status = computeState();
+    $user_id = $_SESSION['user_id'];
+    $status = computeState($user_id);
+
+    if ($status['status'] == 'no_game') {
+        resetGame();
+    }
+
+    $status = computeState($user_id);
 
     ServerLogger::log("Response: ", $status);
     echo json_encode($status);
@@ -185,83 +190,75 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ServerLogger::log($_POST);
 
-    if (isset($_POST['logout']) && $_POST['logout'] == true) {
-        logout();
+    $user_id = $_SESSION['user_id'];
 
-        echo json_encode(['success' => true]);
-        exit;
-    }
-
-    if (isset($_POST['reset'])) {
+    if (isset($_POST['reset']) && isset($_POST['reset'])) {
         resetGame();
-
-        $status = computeState();
-        $status['status'] = 'reset';
-
-        echo json_encode($status);
-        exit;
+        echo json_encode(computeState($user_id));
+        return;
     }
 
+    if (isset($_POST['logout']) && isset($_POST['logout'])) {
+        logout();
+        echo json_encode(['success' => true]);
+        return;
+    }
+
+    $game = getCurrentGame($user_id);
+
+    if (!$game) {
+        $game_id = createNewGame($user_id);
+        $game = getCurrentGame($user_id);
+    }
+
+    $board = str_split($game['board']);
     $position = intval($_POST['position']);
-    if (isValidMove($_SESSION['board'], $position) && !$_SESSION['gameOver']) {
-        $_SESSION['board'][$position] = 0;
-        $_SESSION['counter']++;
 
+    if (isValidMove($board, $position) && $game['status'] === 'ongoing') {
+        ServerLogger::log("Playing move");
 
-        $response = computeState();
+        $board[$position] = 'X';
+        $new_board = implode('', $board);
 
-        if ($response['status'] === 'win') {
-            if ($response['winner'][0] === 0) {
-                $_SESSION['xWins'] = $_SESSION['xWins'] + 1;
+        $winner = checkWin($board);
+        ServerLogger::log("Winner: ", $winner);
+
+        if ($winner !== null) {
+            ServerLogger::log("User won!");
+            ServerLogger::log(computeState($user_id));
+            updateGameState($game['id'], $new_board, 'user_won');
+            ServerLogger::log(computeState($user_id));
+
+        } else if (isBoardFull($board)) {
+            ServerLogger::log("Board is full");
+            updateGameState($game['id'], $new_board, 'draw');
+        } else {
+            // AI move
+            ServerLogger::log("Computing AI move!");
+            $move = getComputerMove($board);
+            ServerLogger::log("AI move: ", $move);
+
+            $board[$move] = 'O';
+            $new_board = implode('', $board);
+
+            $winner = checkWin($board);
+            if ($winner !== null) {
+                updateGameState($game['id'], $new_board, 'ai_won');
+            } else if (isBoardFull($board)) {
+                updateGameState($game['id'], $new_board, 'draw');
             } else {
-                $_SESSION['oWins'] = $_SESSION['oWins'] + 1;
+                updateGameState($game['id'], $new_board, 'ongoing');
             }
-
-            $switch = 0;
-            if ($_SESSION['scores'][$_SESSION['pointer']]['player'] !== $response['winner'][0]) {
-                $switch = 1;
-            }
-            updateScores($response['winner'][0], $switch);
-
-            $response = computeState();
         }
+
+        $response = computeState($user_id);
     } else {
-        $response = computeState();
+        ServerLogger::log("Invalid move received!");
+        $response = computeState($user_id);
         $response['status'] = 'invalid';
     }
 
-    if (!$_SESSION['gameOver']) {
-
-        do {
-            $move = getComputerMove();
-        } while (!isValidMove($_SESSION['board'], $move));
-
-        $_SESSION['board'][$move] = 1;
-        $_SESSION['counter']++;
-
-        $response = computeState();
-
-        if ($response['status'] === 'win') {
-            if ($response['winner'][0] === 0) {
-                $_SESSION['xWins'] = $_SESSION['xWins'] + 1;
-            } else {
-                $_SESSION['oWins'] = $_SESSION['oWins'] + 1;
-            }
-
-            $switch = 0;
-            if ($_SESSION['scores'][$_SESSION['pointer']]['player'] !== $response['winner'][0]) {
-                $switch = 1;
-            }
-            updateScores($response['winner'][0], $switch);
-
-            $response = computeState();
-        }
-
-    }
-
-
-    ServerLogger::log("Response: ", $response);
-
+    ServerLogger::log($response);
     echo json_encode($response);
 }
 ?>

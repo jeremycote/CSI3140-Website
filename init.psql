@@ -1,0 +1,28 @@
+DROP TABLE IF EXISTS games;
+DROP TABLE IF EXISTS users;
+DROP TYPE IF EXISTS game_status;
+
+-- Users table
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    is_admin BOOLEAN DEFAULT FALSE
+);
+
+-- Create an enum type for game status
+CREATE TYPE game_status AS ENUM ('ongoing', 'user_won', 'ai_won', 'draw');
+
+-- Games table
+CREATE TABLE games (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER,
+    board VARCHAR(9) DEFAULT '---------',
+    status game_status DEFAULT 'ongoing',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+INSERT INTO users (username, password, is_admin) VALUES ('jeremy', 'ABC', false);
+INSERT INTO users (username, password, is_admin) VALUES ('jasmin', 'DEF', false);
+INSERT INTO users (username, password, is_admin) VALUES ('TA', 'XYZ', true);

@@ -1,0 +1,82 @@
+body {
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+
+  --cta-colour: #66b0db;
+  --cta-hover-colour: #4285ad;
+}
+
+nav {
+  background-color: #313839;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+}
+
+nav > a {
+  font-size: 1.25em;
+  text-decoration: none;
+  color: #ffffff;
+  background-color: var(--cta-colour);
+  padding: 0.25em;
+  margin: 0.5em;
+}
+
+nav > a:hover {
+  background-color: var(--cta-hover-colour);
+}
+
+.login-container {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  margin-top: 0;
+  color: #333;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  margin-bottom: 0.5rem;
+  color: #555;
+}
+
+input[type="text"],
+input[type="password"] {
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+input[type="submit"] {
+  background-color: var(--cta-colour);
+  color: white;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+input[type="submit"]:hover {
+  background-color: var(--cta-hover-colour);
+}
+
+.error {
+  color: red;
+  margin-bottom: 1rem;
+}

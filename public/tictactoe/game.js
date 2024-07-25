@@ -4,42 +4,25 @@ var slots = [];
 var leadSlots = [];
 var restart_button;
 var game_over = false;
-var current_player = 0;
 var is_hovering_valid_slot = false;
 var o_score_element;
 var x_score_element;
 
 function logout() {
   console.log("Logging out");
-  fetch("game.php", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: `logout=${true}`,
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.success == true) {
-        window.location.reload();
-      }
-    })
-    .catch((error) => console.error("Error:", error));
+  window.location.href = "logout.php";
 }
 
 function get_current_player_token_html() {
-  console.log("Current Player: ", current_player);
-  return current_player === 0
-    ? "<p class='colour-x'>X</p>"
-    : "<p class='colour-o'>O</p>";
+  return "<p class='colour-x'>X</p>"; // Player is always X now
 }
 
 function updateBoard(board) {
   for (var i = 0; i < board.length; i++) {
-    if (board[i] !== null) {
+    if (board[i] !== "-") {
       slots[i].innerHTML = `<p class='${
-        board[i] === 0 ? "colour-x" : "colour-o"
-      }'>${board[i] === 0 ? "X" : "O"}</p>`;
+        board[i] === "X" ? "colour-x" : "colour-o"
+      }'>${board[i]}</p>`;
     } else {
       slots[i].innerHTML = "";
     }
@@ -48,12 +31,10 @@ function updateBoard(board) {
 
 function updateLeaderboard(leaderboard) {
   for (var i = 0; i < leaderboard.length; i++) {
-    if (leaderboard[i]["score"] !== null && leaderboard[i]["player"] !== null) {
-      leadSlots[i].innerHTML = `<li> <a class='${
-        leaderboard[i]["player"] === 0 ? "colour-x" : "colour-o"
-      }'>${leaderboard[i]["player"] === 0 ? "X" : "O"}<a> => ${
-        leaderboard[i]["score"]
-      }</li>`;
+    if (leaderboard[i].username && leaderboard[i].wins) {
+      leadSlots[i].innerHTML = `<li><b>${leaderboard[i].username}</b>: ${
+        leaderboard[i].wins
+      } win${leaderboard[i].wins !== 1 ? "s" : ""}</li>`;
     } else {
       leadSlots[i].innerHTML = "";
     }
@@ -65,7 +46,11 @@ function handleStatus(data) {
     updateBoard(data.board);
   }
 
-  if (data.status !== "continue" && data.status !== "reset") {
+  if (data.leaderboard !== null) {
+    updateLeaderboard(data.leaderboard);
+  }
+
+  if (data.status !== "ongoing" && data.status !== "reset") {
     game_over = true;
     restart_button.style.visibility = "visible";
   } else {
@@ -73,11 +58,13 @@ function handleStatus(data) {
     restart_button.style.visibility = "hidden";
   }
 
-  if (data.status === "win") {
-    slots[data.winner[1]].classList.add("background-winner");
-    slots[data.winner[2]].classList.add("background-winner");
-    slots[data.winner[3]].classList.add("background-winner");
-    updateLeaderboard(data.leaderboard);
+  if (data.status === "user_won" || data.status === "ai_won") {
+    if (data.winner != null) {
+      for (var i = 1; i < 4; i++) {
+        var idx = Number.parseInt(data.winner[i]);
+        slots[idx].classList.add("background-winner");
+      }
+    }
   } else {
     for (var i = 0; i < 9; i++) {
       slots[i].classList.remove("background-winner");
@@ -95,10 +82,6 @@ function handleStatus(data) {
   // TODO: Present pretty UI elements for game events such as draw, win or restart
 }
 
-/**
- * Attempt to play at position
- * @param position integer id of slot
- */
 function playTurn(position) {
   fetch("game.php", {
     method: "POST",
@@ -166,6 +149,7 @@ window.addEventListener("load", function () {
     })
       .then((response) => response.json())
       .then((data) => {
+        console.log(data);
         handleStatus(data);
       });
   });
