@@ -198,12 +198,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         return;
     }
 
-    if (isset($_POST['logout']) && isset($_POST['logout'])) {
-        logout();
-        echo json_encode(['success' => true]);
-        return;
-    }
-
     $game = getCurrentGame($user_id);
 
     if (!$game) {
