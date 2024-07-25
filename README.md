@@ -33,6 +33,37 @@ cd public
 php -S localhost:8000
 ```
 
+# Accounts
+
+We have not implemented account creation as it was outside the scope of the project. You may use the following accounts.
+
+<table>
+  <thead>
+    <tr>
+      <th>Username</th>
+      <th>Password</th>
+      <th>Is Admin</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>jeremy</td>
+      <td>ABC</td>
+      <td>false</td>
+    </tr>
+    <tr>
+      <td>jasmin</td>
+      <td>DEF</td>
+      <td>false</td>
+    </tr>
+    <tr>
+      <td>TA</td>
+      <td>XYZ</td>
+      <td>true</td>
+    </tr>
+  </tbody>
+</table>
+
 # In case of issues
 
 We've attached a Demo.mov file for demonstration purposes in case of difficulty. It should cover all necessary live demonstration features.
